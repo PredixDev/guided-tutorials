@@ -125,17 +125,19 @@ function checkExit() {
 
 trap checkExit EXIT
 
-echo "Welcome to the Predix Hello World tutorial."
-echo "--------------------------------------------------------------"
-echo ""
-echo "This is an automated script which will guide you through the tutorial."
-echo ""
-echo "Let's start by verifying that you have the required tools installed."
-read -p "Should we install the required tools if not already installed?> " -t 30 answer
-verifyAnswer answer
-echo ""
+if ! [[ "$1" == "--skip-setup" ]]; then
+  echo "Welcome to the Predix Hello World tutorial."
+  echo "--------------------------------------------------------------"
+  echo ""
+  echo "This is an automated script which will guide you through the tutorial."
+  echo ""
+  echo "Let's start by verifying that you have the required tools installed."
+  read -p "Should we install the required tools if not already installed?> " -t 30 answer
+  verifyAnswer answer
+  echo ""
 
-run_setup
+  run_setup
+fi
 
 echo ""
 echo "Step 1. Sign in to Predix Cloud if not already signed in"
