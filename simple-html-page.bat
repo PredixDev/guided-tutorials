@@ -116,4 +116,9 @@ ECHO.
 CALL :SETUP
 CALL :RELOAD_ENV
 
+ECHO.
+ECHO The required tools have been installed. Now you can proceed with the tutorial.
+ECHO Press any key to continue...
+pause
+
 "%PROGRAMFILES%\Git\bin\bash" --login -i -- simple-html-page.sh --skip-setup

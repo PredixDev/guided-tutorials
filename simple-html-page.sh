@@ -25,7 +25,7 @@ function check_internet() {
   echo "Checking internet connection..."
   curl "http://google.com" > /dev/null 2>&1
   if [ $? -ne 0 ]; then
-    echo Unable to connect to internet, make sure you are connected to a network and check your proxy settings if behind a corporate proxy
+    echo "Unable to connect to internet, make sure you are connected to a network and check your proxy settings if behind a corporate proxy"
     exit 1
   fi
   echo "OK"
@@ -106,6 +106,9 @@ function verifyCfLogin() {
 
   if [[ "${targetInfo/FAILED}" == "$targetInfo" ]] && [[ "${targetInfo/No org}" == "$targetInfo" ]] && [[ "${targetInfo/No space}" == "$targetInfo" ]]; then
     cf target
+    echo ""
+    echo "Looks like you are already logged in."
+    pause
   else
     cf predix
   fi
@@ -123,6 +126,11 @@ function checkExit() {
   fi
 }
 
+function pause() {
+  read -n1 -r -p "Press any key to continue..."
+  echo ""
+}
+
 trap checkExit EXIT
 
 if ! [[ "$1" == "--skip-setup" ]]; then
@@ -137,6 +145,10 @@ if ! [[ "$1" == "--skip-setup" ]]; then
   echo ""
 
   run_setup
+
+  echo ""
+  echo "The required tools have been installed. Now you can proceed with the tutorial."
+  pause
 fi
 
 echo ""
@@ -153,13 +165,21 @@ cd Predix-HelloWorld-WebApp
 echo ""
 echo "Step 3. Give the application a unique name"
 echo "--------------------------------------------------------------"
+echo "We will give the application a unique name by editing the manifest file (manifest.yml)."
+echo "This file contains all the information about the application."
+echo ""
 read -p "Enter a suffix for the application name> " -t 30 suffix
 suffix=${suffix// /-}
 suffix=${suffix//_/-}
 
 app_name=Predix-HelloWorld-WebApp-$suffix
 sed -i -e "s/name: .*Predix-HelloWorld-WebApp.*$/name: $app_name/" manifest.yml
-echo "App name set to: $app_name"
+echo "Application name set to: $app_name"
+echo "This is what the manifest file looks like"
+cat manifest.yml
+echo ""
+echo "Take a moment to study the contents of the manifest file."
+pause
 
 echo ""
 echo "Step 4. Push the app to the cloud"
@@ -167,7 +187,10 @@ echo "--------------------------------------------------------------"
 cf push
 
 echo ""
-echo "Step 5. Using a browser, visit the url to see the app"
+echo "Step 5. Using a browser, visit the URL to see the app"
 echo "--------------------------------------------------------------"
 url=$(cf app $app_name | grep urls | awk '{print $2}')
+echo "You have successfully pushed your first Predix application."
+echo "Enter the URL below in a browser to view the application."
+echo ""
 echo "https://$url"
