@@ -101,6 +101,8 @@ GOTO :eof
 GOTO :eof
 
 :START
+PUSHD "%~dp0"
+
 ECHO Welcome to the Predix Hello World tutorial.
 ECHO --------------------------------------------------------------
 ECHO.
@@ -122,3 +124,6 @@ ECHO Press any key to continue...
 pause
 
 "%PROGRAMFILES%\Git\bin\bash" --login -i -- simple-html-page.sh --skip-setup
+
+POPD
+
