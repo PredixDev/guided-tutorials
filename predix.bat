@@ -1,15 +1,22 @@
-call %* 
 @ECHO OFF
 SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
+
+REM this is a trick to send the errorlevel back to the calling script.  In calling script use:  
+REM CALL :MY_FUNCITON arg1 arg2
+call %*
+if "%ERRORLEVEL%" == "1" exit /B 1
 exit /b
+GOTO :eof 
 
 :VERIFY_ANSWER
   IF "%1"=="" (
-    SET /p answer=Specify (yes/no)
+    SET /p answer=Specify [yes/no]
   ) ELSE (
     SET answer=%1
   )
-  IF NOT "!answer:~0,1!"=="y" IF NOT "!answer:~0,1!"=="Y" EXIT /b 1
+  IF NOT "!answer:~0,1!"=="y" IF NOT "!answer:~0,1!"=="Y" (
+   EXIT /b 1
+  )
 GOTO :eof
 
 :RELOAD_ENV
@@ -22,18 +29,11 @@ GOTO :eof
   @powershell -Command "(new-object net.webclient).DownloadString('http://www.google.com')" >$null 2>&1
   IF NOT !errorlevel! EQU 0 (
     ECHO Unable to connect to internet, make sure you are connected to a network and check your proxy settings if behind a corporate proxy
-    EXIT /b !errorlevel!
-  )
-  ECHO OK
-GOTO :eof
-
-:GET_WINDOWS_FILES
-  REM   @powershell -Command "(new-object net.webclient).DownloadFile('https://raw.githubusercontent.com/PredixDev/guided-tutorials/master/install-basics.bat','install-basics.bat')" >$null 2>&1
-  ECHO Getting Files...
-  @powershell -Command "(new-object net.webclient).DownloadFile('https://raw.githubusercontent.com/PredixDev/guided-tutorials/master/resetvars.vbs','resetvars.vbs')" >$null 2>&1
-  @powershell -Command "(new-object net.webclient).DownloadFile('https://raw.githubusercontent.com/PredixDev/guided-tutorials/master/predix.bat','predix.bat')" >$null 2>&1
-  IF NOT !errorlevel! EQU 0 (
-    ECHO Unable to connect to internet, make sure you are connected to a network and check your proxy settings if behind a corporate proxy
+    ECHO If you are behind a corporate proxy, set the 'http_proxy' and 'https_proxy' environment variables.
+    ECHO Commands to set proxy:
+    ECHO set http_proxy="http://<proxy-host>:<proxy-port>"
+    ECHO set https_proxy="http://<proxy-host>:<proxy-port>"
+    ECHO This can be done permanently using Advanced System Settings
     EXIT /b !errorlevel!
   )
   ECHO OK
@@ -88,23 +88,16 @@ GOTO :eof
   )
 ENDLOCAL & GOTO :eof
 
-:CHECK_FAIL
-  IF NOT !errorlevel! EQU 0 (
-    CALL :MANUAL
-    EXIT /b !errorlevel!
-  )
-GOTO :eof
-
-:SETUP
+:STD_SETUP
   REM These are bare minimum for all Predix tutorials
   CALL :CHECK_INTERNET_CONNECTION
-  CALL :CHECK_FAIL
+  IF NOT !errorlevel! EQU 0   EXIT /b !errorlevel!
   CALL :INSTALL_CHOCO
-  CALL :CHECK_FAIL
+  IF NOT !errorlevel! EQU 0   EXIT /b !errorlevel!
   CALL :CHOCO_INSTALL git
-  CALL :CHECK_FAIL
+  IF NOT !errorlevel! EQU 0   EXIT /b !errorlevel!
   CALL :INSTALL_CF
-  CALL :CHECK_FAIL
+  IF NOT !errorlevel! EQU 0   EXIT /b !errorlevel!
 GOTO :eof
 
 

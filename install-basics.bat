@@ -1,41 +1,55 @@
 @ECHO OFF
 SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 
+SET BRANCH=%1
 GOTO START
-
-:SETUP
-  CALL predix.bat :SETUP
-  CALL predix.bat :GET_WINDOWS_FILES
-GOTO :eof
 
 :MANUAL
   ECHO.
-  ECHO You can manually go through the tutorial steps here
-  ECHO https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1475^&tag^=1719^&journey^=Hello%%20World
+  ECHO Okay.  You can manually install tools by following links in the Setup section.
+  ECHO.
+GOTO :eof
+
+:CHECK_FAIL
+  IF NOT !errorlevel! EQU 0 (
+    CALL :MANUAL
+  )
+GOTO :eof
+
+:GET_DEPENDENCIES
+  ECHO https://raw.githubusercontent.com/PredixDev/guided-tutorials/%BRANCH%/resetvars.vbs
+  @powershell -Command "(new-object net.webclient).DownloadFile('https://raw.githubusercontent.com/PredixDev/guided-tutorials/%BRANCH%/resetvars.vbs','resetvars.vbs')" 
+  ECHO https://raw.githubusercontent.com/PredixDev/guided-tutorials/%BRANCH%/predix.bat
+  @powershell -Command "(new-object net.webclient).DownloadFile('https://raw.githubusercontent.com/PredixDev/guided-tutorials/%BRANCH%/predix.bat','predix.bat')" 
 GOTO :eof
 
 :START
+  REM to execute this script, copy this develop or master command to a Windows Administrative Command window
+  REM   @powershell -Command "(new-object net.webclient).DownloadFile('https://raw.githubusercontent.com/PredixDev/guided-tutorials/develop/install-basics.bat','install-basics.bat')"  && install-basics.bat develop
+  REM   @powershell -Command "(new-object net.webclient).DownloadFile('https://raw.githubusercontent.com/PredixDev/guided-tutorials/master/install-basics.bat','install-basics.bat')"  && install-basics.bat master
+  
   PUSHD "%~dp0"
-
+  
+  ECHO.
+  ECHO.
   ECHO Welcome to the Predix Windows Basics installer.
   ECHO --------------------------------------------------------------
   ECHO.
-  ECHO This is an automated script which will guide you through the tutorial.
+  ECHO Getting Dependencies
+  CALL :GET_DEPENDENCIES
   ECHO.
-  ECHO Let's start by verifying that you have the required tools installed.
   SET /p answer=Should we install the required tools if not already installed?
-  CALL :VERIFY_ANSWER !answer!
+  CALL predix.bat :VERIFY_ANSWER !answer!
+  ECHO. 
   CALL :CHECK_FAIL
-  IF NOT !errorlevel! EQU 0 EXIT /b !errorlevel!
+  IF NOT !errorlevel! EQU 0 EXIT /b !errorlevel!a
+  CALL predix.bat :STD_SETUP
+  IF NOT !errorlevel! EQU 0   EXIT /b !errorlevel!
+  CALL predix.bat :RELOAD_ENV
+  IF NOT !errorlevel! EQU 0   EXIT /b !errorlevel!
+  
   ECHO.
-
-  CALL :SETUP
-  CALL :RELOAD_ENV
-
-  ECHO.
-  ECHO The required tools have been installed. Now you can proceed with the tutorial.
-  ECHO Press any key to continue...
+  ECHO The basic tools have been installed.
   pause
 
   POPD
-
