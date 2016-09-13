@@ -2,9 +2,19 @@
 set -e
 
 BRANCH="master"
-if ! [[ -z "$1" ]]; then
-  BRANCH="$1"
+SKIP_SETUP=false
+
+while (( "$#" )); do
+
+if [[ $1 == "--skip-setup" ]]; then
+  SKIP_SETUP=true
+else
+  BRANCH=$1
 fi
+
+shift
+
+done
 
 TUTORIAL="https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1475&tag=1719&journey=Hello%20World"
 PREDIX_SH="https://raw.githubusercontent.com/PredixDev/guided-tutorials/$BRANCH/predix.sh"
@@ -43,6 +53,7 @@ function check_internet() {
   curl "http://google.com" > /dev/null 2>&1
   if [ $? -ne 0 ]; then
     echo "Unable to connect to internet, make sure you are connected to a network and check your proxy settings if behind a corporate proxy"
+    echo "If you are behind a corporate proxy, set the 'http_proxy' and 'https_proxy' environment variables."
     exit 1
   fi
   echo "OK"
@@ -55,7 +66,7 @@ function run_setup() {
   bash <(curl -s -L "$SETUP_MAC") --git --cf
 }
 
-if [[ "$1" == "--skip-setup" ]]; then
+if $SKIP_SETUP; then
   check_internet
   eval "$(curl -s -L $PREDIX_SH)"
 else
