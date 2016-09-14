@@ -96,6 +96,13 @@ verifyCfLogin
 echo ""
 echo "Step 2. Download the Predix Hello World web application"
 echo "--------------------------------------------------------------"
+if [ -d Predix-HelloWorld-WebApp ]; then
+  echo "The Predix-HelloWorld-WebApp already exists."
+  read -p "Should we delete it and proceed?> " -t 30 answer
+  verifyAnswer answer
+  echo ""
+  rm -rf Predix-HelloWorld-WebApp
+fi
 git clone https://github.com/PredixDev/Predix-HelloWorld-WebApp.git
 cd Predix-HelloWorld-WebApp
 
