@@ -2,8 +2,14 @@
 
 Scripts to run guided tutorials
 
-## Download the scripts
+## Running the scripts
 
-* Download the scripts from https://github.com/PredixDev/guided-tutorials/archive/master.zip
+* On Mac OSX, run the command below in a terminal window
+```
+bash <( curl https://raw.githubusercontent.com/PredixDev/guided-tutorials/master/<tutorial>.sh )
+```
 
-* Extract the zip on your computer
+* On Windows, open a Command Window as Administrator (Right click 'Run as Administrator') and run the command below
+```
+@powershell -Command "(new-object net.webclient).DownloadFile('https://raw.githubusercontent.com/PredixDev/guided-tutorials/master/<tutorial>.bat','%TEMP%\<tutorial>.bat')" && "%TEMP%\<tutorial>.bat"
+```
