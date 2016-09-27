@@ -16,7 +16,7 @@ shift
 
 done
 
-TUTORIAL="https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1475&tag=1719&journey=Hello%20World"
+TUTORIAL="https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1475&tag=1719&journey=Hello%20World&resources=1475,1569,1523"
 PREDIX_SH="https://raw.githubusercontent.com/PredixDev/guided-tutorials/$BRANCH/predix.sh"
 SETUP_MAC="https://raw.githubusercontent.com/PredixDev/local-setup/$BRANCH/setup-mac.sh"
 
@@ -103,8 +103,8 @@ if [ -d Predix-HelloWorld-WebApp ]; then
   echo ""
   rm -rf Predix-HelloWorld-WebApp
 fi
-git clone https://github.com/PredixDev/Predix-HelloWorld-WebApp.git
-cd Predix-HelloWorld-WebApp
+echoAndRun git clone https://github.com/PredixDev/Predix-HelloWorld-WebApp.git
+echoAndRun cd Predix-HelloWorld-WebApp
 
 echo ""
 echo "Step 3. Give the application a unique name"
@@ -120,7 +120,7 @@ app_name=Predix-HelloWorld-WebApp-$suffix
 sed -i -e "s/name: .*Predix-HelloWorld-WebApp.*$/name: $app_name/" manifest.yml
 echo "Application name set to: $app_name"
 echo "This is what the manifest file looks like"
-cat manifest.yml
+echoAndRun cat manifest.yml
 echo ""
 echo "Take a moment to study the contents of the manifest file."
 pause
@@ -128,7 +128,7 @@ pause
 echo ""
 echo "Step 4. Push the app to the cloud"
 echo "--------------------------------------------------------------"
-cf push
+echoAndRun cf push
 
 echo ""
 echo "Step 5. Using a browser, visit the URL to see the app"

@@ -20,3 +20,8 @@ function verifyCfLogin() {
     cf predix
   fi
 }
+
+function echoAndRun() {
+  echo $@
+  $@
+}

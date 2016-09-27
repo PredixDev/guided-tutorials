@@ -6,12 +6,10 @@ IF NOT "%1"=="" (
   SET BRANCH=%1
 )
 
-SET TUTORIAL=https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1569&tag=1719&journey=Hello%20World&resources=1475,1569,1523
-SET RESETVARS=https://raw.githubusercontent.com/PredixDev/local-setup/!BRANCH!/resetvars.vbs
+SET TUTORIAL=https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1569^&tag^=1719^&journey^=Hello%%20World^&resources^=1475,1569,1523
 SET SETUP_WINDOWS=https://raw.githubusercontent.com/PredixDev/local-setup/!BRANCH!/setup-windows.bat
 SET SHELL_SCRIPT_NAME=front-end-world
 SET SHELL_SCRIPT=https://raw.githubusercontent.com/PredixDev/guided-tutorials/!BRANCH!/+%SHELL_SCRIPT_NAME%+.sh
-
 
 GOTO START
 
@@ -38,8 +36,6 @@ GOTO :eof
 
 :GET_DEPENDENCIES
   ECHO Getting Dependencies
-  ECHO !RESETVARS!
-  @powershell -Command "(new-object net.webclient).DownloadFile('!RESETVARS!','%TEMP%\resetvars.vbs')"
   ECHO !SETUP_WINDOWS!
   @powershell -Command "(new-object net.webclient).DownloadFile('!SETUP_WINDOWS!','%TEMP%\setup-windows.bat')"
   ECHO !SHELL_SCRIPT!
