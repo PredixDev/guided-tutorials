@@ -22,7 +22,7 @@ SETUP_MAC="https://raw.githubusercontent.com/PredixDev/local-setup/$BRANCH/setup
 PREDIX_SCRIPT_DIR_NAME=predix-scripts
 PREDIX_SCRIPT_REPO=https://github.com/PredixDev/$PREDIX_SCRIPT_DIR_NAME.git
 CAMP_APP_REPO_NAME="campaign-nodejs-starter"
-CAMP_APP_GIT_HUB_URL="https://github.build.ge.com/adoption/$CAMP_APP_REPO_NAME.git"
+CAMP_APP_GIT_HUB_URL="https://github.com/PredixDev/$CAMP_APP_REPO_NAME.git"
 
 function manual() {
   echo ""
@@ -84,20 +84,21 @@ function git_clone_repo() {
 }
 
 function promptCfLogin() {
-  cfLogin=$(cf target | grep 'Not logged in.' | awk '{print $1$2}')
-  if [ '${cfLogin}' == 'Notlogged' ]; then
+  #cfLogin=$(cf target | grep 'Not logged in.' | awk '{print $1$2}')
+  cfLogin=$(cf target | grep 'User' | awk '{print $1}')
+  if [ "${cfLogin}" == "User:" ]; then
+    #echo "x has the value 'User:'"
+    verifyCfLogin
+  else
     echo "To Login to Cloud foundry select the following when prompted"
-    echo ". Select Basic >> 1"
+    echo ". Choose option Basic >> 1"
     echo ". Email address"
     echo ". Password"
     echo ". Org"
     echo ". Space (optional)"
     pause
     cf predix
-  else
-    verifyCfLogin
   fi
-
 }
 
 
@@ -109,7 +110,7 @@ function createUaaClient()
     else
       echo "Got UAA admin token $adminUaaToken"
       #echo "Making CURL GET request to create UAA Client ID \"$UAA_CLIENTID_GENERIC\"..."
-      responseCurl=`curl -s "$1/oauth/clients" -H "Pragma: no-cache" -H "Content-Type: application/json" -H "Cache-Control: no-cache" -H "Authorization: $adminUaaToken" --data-binary '{"client_id":"'$UAA_CLIENTID_GENERIC'","client_secret":"'$UAA_CLIENTID_GENERIC_SECRET'","scope":["acs.policies.read","acs.policies.write","acs.attributes.read","'$2.zones.$3.user'","uaa.none","openid"],"authorized_grant_types":["client_credentials","authorization_code","refresh_token","password"],"authorities":["openid","uaa.none","uaa.resource","'$2.zones.$3.user'"],"autoapprove":["openid"]}'`
+      responseCurl=`curl -s "$1/oauth/clients" -H "Pragma: no-cache" -H "Content-Type: application/json" -H "Cache-Control: no-cache" -H "Authorization: $adminUaaToken" --data-binary '{"client_id":"'$UAA_CLIENTID_GENERIC'","client_secret":"'$UAA_CLIENTID_GENERIC_SECRET'","scope":["uaa.none","openid"],"authorized_grant_types":["client_credentials"],"authorities":["openid","uaa.none","uaa.resource","'$2.zones.$3.user'"],"autoapprove":["openid"]}'`
       echo $responseCurl
 
       if [ ${#responseCurl} -lt 3 ]; then
@@ -248,8 +249,8 @@ echo "Details Client setup"
 echo "UAA URL = $UAA_URL"
 echo "UAA APPLICATION CLIENTID = $UAA_CLIENTID_GENERIC"
 echo "UAA APPLICATION CLIENT SECRET = $UAA_CLIENTID_GENERIC_SECRET"
-echo 'UAA APPLICATION GRANT TYPES = ["client_credentials","authorization_code","refresh_token","password"]'
-echo 'UAA APPLICATION CLIENT SCOPES" = ["acs.policies.read","acs.policies.write","acs.attributes.read","'$ASSET_SERVICE_NAME.zones.$ASSET_INSTANCE_GUID.user'","uaa.none","openid"]'
+echo 'UAA APPLICATION GRANT TYPES = ["client_credentials"]'
+echo 'UAA APPLICATION CLIENT SCOPES" = ["uaa.none","openid"]'
 echo 'UAA APPLICATION CLIENT AUTHORITIES" = ["openid","uaa.none","uaa.resource","'$ASSET_SERVICE_NAME.zones.$ASSET_INSTANCE_GUID.user'"]'
 echo ""
 echo ""

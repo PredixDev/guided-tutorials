@@ -37,7 +37,6 @@ GOTO :eof
   ECHO Getting Dependencies
   ECHO !SETUP_WINDOWS!
   @powershell -Command "(new-object net.webclient).DownloadFile('!SETUP_WINDOWS!','%TEMP%\setup-windows.bat')"
-  ECHO %SHELL_SCRIPT%
   ECHO !SHELL_SCRIPT!
   @powershell -Command "(new-object net.webclient).DownloadFile('!SHELL_SCRIPT!','%TEMP%\%SHELL_SCRIPT_NAME%.sh')"
 GOTO :eof
