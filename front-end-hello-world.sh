@@ -43,8 +43,6 @@ function verifyAnswer() {
   if [[ ${answer:0:1} == "y" ]] || [[ ${answer:0:1} == "Y" ]]; then
     return
   fi
-  echo "Did not receive an answer, exiting tutorial"
-  echo ""
   exit 1
 }
 
