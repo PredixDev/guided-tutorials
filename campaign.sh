@@ -295,3 +295,5 @@ echo ""
 echo "Congratulations."
 echo "Application successfully deployed at https://$apphost. Please open the application on the browser."
 echo "To claim your Tshirt, please vist the deployed application."
+
+open (https://$apphost)
