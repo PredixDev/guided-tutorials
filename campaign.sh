@@ -296,4 +296,16 @@ echo "Congratulations."
 echo "Application successfully deployed at https://$apphost. Please open the application on the browser."
 echo "To claim your Tshirt, please vist the deployed application."
 
-open https://$apphost
+# Automagically open the application in browser, based on OS
+case "$(uname -s)" in
+
+   Darwin)
+     # OSX
+     open https://$apphost
+     ;;
+
+   CYGWIN*|MINGW32*|MINGW64*|MSYS*)
+     # Windows
+     start "" https://$apphost
+     ;;
+esac
