@@ -20,7 +20,7 @@ GOTO :eof
 
 :MANUAL
   ECHO.
-  ECHO You can manually go through the tutorial steps here
+  ECHO Exiting tutorial. You can manually go through the tutorial steps here
   ECHO !TUTORIAL!
 GOTO :eof
 
