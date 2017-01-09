@@ -22,7 +22,7 @@ SETUP_MAC="https://raw.githubusercontent.com/PredixDev/local-setup/$BRANCH/setup
 
 function manual() {
   echo ""
-  echo "You can manually go through the tutorial steps here"
+  echo "Exiting tutorial. You can manually go through the tutorial steps here"
   echo "$TUTORIAL"
   echo ""
 }
