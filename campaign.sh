@@ -26,7 +26,8 @@ CAMP_APP_GIT_HUB_URL="https://github.com/PredixDev/$CAMP_APP_REPO_NAME.git"
 
 function manual() {
   echo ""
-  echo "You can manually go through the tutorial steps here"
+  echo ""
+  echo "Exiting tutorial. You can manually go through the tutorial steps here"
   echo "$TUTORIAL"
   echo ""
 }
