@@ -1,6 +1,6 @@
 {
   "version" : 1.0,
   "dependendencies" : {
-    "predix-scripts" : "https://github.com/PredixDev/predix-scripts"
+    "predix-scripts" : "https://github.com/PredixDev/predix-scripts#1.0"
   }
 }
