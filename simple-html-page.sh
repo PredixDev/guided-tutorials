@@ -1,28 +1,40 @@
 #!/bin/bash
 set -e
 
-BRANCH="master"
 SKIP_SETUP=false
+BRANCH="master"
 
 while (( "$#" )); do
-
-if [[ $1 == "--skip-setup" ]]; then
-  SKIP_SETUP=true
-else
-  BRANCH=$1
-fi
-
+opt="$1"
+case $opt in
+  -b|--branch)
+    BRANCH="$2"
+    shift
+  ;;
+  --skip-setup)
+    SKIP_SETUP=true
+  ;;
+esac
 shift
-
 done
 
-TUTORIAL="https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1475&tag=1719&journey=Hello%20World&resources=1475,1569,1523"
+if [[ -z $BRANCH ]]; then
+  echo "Usage: $0 -b/--branch <branch> [--skip-setup]"
+  exit 1
+fi
+
+IZON_SH="https://raw.githubusercontent.com/PredixDev/izon/1.0.0/izon.sh"
+VERSION_JSON="https://raw.githubusercontent.com/PredixDev/guided-tutorials/$BRANCH/version.json"
 PREDIX_SH="https://raw.githubusercontent.com/PredixDev/guided-tutorials/$BRANCH/predix.sh"
-SETUP_MAC="https://raw.githubusercontent.com/PredixDev/local-setup/$BRANCH/setup-mac.sh"
+
+TUTORIAL="https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1475&tag=1719&journey=Hello%20World&resources=1475,1569,1523"
+
+PREDIX_HELLOWORLD_WEBAPP="Predix-HelloWorld-WebApp"
 
 function manual() {
   echo ""
-  echo "Exiting tutorial. You can manually go through the tutorial steps here"
+  echo ""
+  echo "Exiting tutorial.  You can manually go through the tutorial steps here"
   echo "$TUTORIAL"
   echo ""
 }
@@ -61,14 +73,25 @@ function check_internet() {
   set -e
 }
 
-function run_setup() {
+function init() {
   check_internet
-  bash <(curl -s -L "$SETUP_MAC") --git --cf
+
+  curl -s -O $VERSION_JSON
+  eval "$(curl -s -L $IZON_SH)"
+
+  __readDependency "local-setup" LOCAL_SETUP_URL LOCAL_SETUP_BRANCH
+  __readDependency $PREDIX_HELLOWORLD_WEBAPP PREDIX_HELLOWORLD_WEBAPP_URL PREDIX_HELLOWORLD_WEBAPP_BRANCH
+
+  SETUP_MAC="https://raw.githubusercontent.com/PredixDev/local-setup/$LOCAL_SETUP_BRANCH/setup-mac.sh"
+}
+
+function run_setup() {
+  init
+  bash <(curl -s -L "$SETUP_MAC") --git --cf --nodejs
 }
 
 if $SKIP_SETUP; then
-  check_internet
-  eval "$(curl -s -L $PREDIX_SH)"
+  init
 else
   echo "Welcome to the Predix Hello World tutorial."
   echo "--------------------------------------------------------------"
@@ -81,12 +104,13 @@ else
   echo ""
 
   run_setup
-  eval "$(curl -s -L $PREDIX_SH)"
 
   echo ""
   echo "The required tools have been installed. Now you can proceed with the tutorial."
   pause
 fi
+
+eval "$(curl -s -L $PREDIX_SH)"
 
 echo ""
 echo "Step 1. Sign in to Predix Cloud if not already signed in"
@@ -96,15 +120,15 @@ verifyCfLogin
 echo ""
 echo "Step 2. Download the Predix Hello World web application"
 echo "--------------------------------------------------------------"
-if [ -d Predix-HelloWorld-WebApp ]; then
-  echo "The Predix-HelloWorld-WebApp already exists."
+if [ -d $PREDIX_HELLOWORLD_WEBAPP ]; then
+  echo "The $PREDIX_HELLOWORLD_WEBAPP already exists."
   read -p "Should we delete it and proceed?> " -t 30 answer
   verifyAnswer answer
   echo ""
-  rm -rf Predix-HelloWorld-WebApp
+  rm -rf $PREDIX_HELLOWORLD_WEBAPP
 fi
-echoAndRun git clone https://github.com/PredixDev/Predix-HelloWorld-WebApp.git
-echoAndRun cd Predix-HelloWorld-WebApp
+echoAndRun git clone --depth 1 --branch $PREDIX_HELLOWORLD_WEBAPP_BRANCH $PREDIX_HELLOWORLD_WEBAPP_URL $PREDIX_HELLOWORLD_WEBAPP
+echoAndRun cd $PREDIX_HELLOWORLD_WEBAPP
 
 echo ""
 echo "Step 3. Give the application a unique name"
@@ -116,8 +140,8 @@ read -p "Enter a suffix for the application name> " -t 30 suffix
 suffix=${suffix// /-}
 suffix=${suffix//_/-}
 
-app_name=Predix-HelloWorld-WebApp-$suffix
-sed -i -e "s/name: .*Predix-HelloWorld-WebApp.*$/name: $app_name/" manifest.yml
+app_name=$PREDIX_HELLOWORLD_WEBAPP-$suffix
+sed -i -e "s/name: .*$PREDIX_HELLOWORLD_WEBAPP.*$/name: $app_name/" manifest.yml
 echo "Application name set to: $app_name"
 echo "This is what the manifest file looks like"
 echoAndRun cat manifest.yml

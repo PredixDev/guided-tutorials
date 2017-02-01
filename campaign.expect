@@ -1,0 +1,38 @@
+#!/usr/bin/expect
+
+set CF_PREFIX [lindex $argv 0];
+
+set timeout 120
+spawn ./campaign.sh --skip-setup master
+
+expect "*Step 1*"
+expect "Looks like you are already logged in."
+expect "Press any key*"
+send "\r"
+
+expect "*Step 2*"
+expect "Enter a prefix for the application/services name>"
+send "$CF_PREFIX\r"
+expect "Press any key*"
+send "\r"
+
+expect "*Step 3*"
+expect "Creating an instance of the UAA service"
+expect "Creating an instance of the Asset service"
+expect "Asset and UAA service created, continue with next step to configure a client on UAA."
+expect "Press any key*"
+send "\r"
+
+expect "*Step 4*"
+expect "UAA client configuration completed, continue with next step to add model to asset service."
+expect "Press any key*"
+send "\r"
+
+expect "*Step 5*"
+expect "Asset Model added, continue with final step to deploy/restage the application."
+expect "Press any key*"
+send "\r"
+
+#expect "*Step 6*"
+#expect "Please open the application in your browser to claim your T-shirt!"
+#expect "*\$ "

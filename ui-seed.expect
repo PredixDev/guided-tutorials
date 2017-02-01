@@ -1,0 +1,38 @@
+#!/usr/bin/expect
+
+set CF_PREFIX [lindex $argv 0];
+
+set timeout 300
+spawn ./ui-seed.sh --skip-setup -b develop
+
+expect "*Step 1*"
+expect "Looks like you are already logged in."
+expect "Press any key*"
+send "\r"
+
+expect "*Step 2*"
+expect "Enter a prefix for the application/services name>"
+send "$CF_PREFIX\r"
+expect "Press any key*"
+send "\r"
+
+expect "*Step 3*"
+expect "Creating an instance of the UAA service"
+expect "Creating an instance of the Asset service"
+expect "Asset and UAA service created*"
+expect "Press any key*"
+send "\r"
+
+expect "*Step 4*"
+expect "UAA client configuration completed, continue with next step to add model to asset service."
+expect "Press any key*"
+send "\r"
+
+expect "*Step 5*"
+expect "Asset Model added, continue with final step to deploy/restage the application."
+expect "Press any key*"
+send "\r"
+
+expect "*Step 6*"
+expect "Your Predix UI Seed app was successfully deployed"
+expect "*\$ "

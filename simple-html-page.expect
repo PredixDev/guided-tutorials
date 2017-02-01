@@ -1,0 +1,28 @@
+#!/usr/bin/expect
+
+set CF_SUFFIX [lindex $argv 0];
+
+set timeout 120
+spawn ./simple-html-page.sh --skip-setup
+
+expect "*Step 1*"
+expect "Looks like you are already logged in."
+expect "Press any key*"
+send "\r"
+
+expect "*Step 2"
+expect "*git clone --depth 1 --branch 1.0.0 https://github.com/PredixDev/Predix-HelloWorld-WebApp.git*"
+
+expect "*Step 3*"
+set timeout 5
+expect "Enter a suffix for the application name>*"
+send "$CF_SUFFIX\r"
+expect "*Take a moment to study the contents of the manifest file.*"
+expect "Press any key *"
+send "\r"
+
+expect "*Step 4*"
+expect "cf push"
+
+expect "*Step 5*"
+expect "*\$ "

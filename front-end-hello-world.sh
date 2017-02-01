@@ -1,28 +1,40 @@
 #!/bin/bash
 set -e
 
-BRANCH="master"
 SKIP_SETUP=false
+BRANCH="master"
 
 while (( "$#" )); do
-
-if [[ $1 == "--skip-setup" ]]; then
-  SKIP_SETUP=true
-else
-  BRANCH=$1
-fi
-
+opt="$1"
+case $opt in
+  -b|--branch)
+    BRANCH="$2"
+    shift
+  ;;
+  --skip-setup)
+    SKIP_SETUP=true
+  ;;
+esac
 shift
-
 done
 
-TUTORIAL="https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1569&tag=1719&journey=Hello%20World&resources=1475,1569,1523"
+if [[ -z $BRANCH ]]; then
+  echo "Usage: $0 -b/--branch <branch> [--skip-setup]"
+  exit 1
+fi
+
+IZON_SH="https://raw.githubusercontent.com/PredixDev/izon/1.0.0/izon.sh"
+VERSION_JSON="https://raw.githubusercontent.com/PredixDev/guided-tutorials/$BRANCH/version.json"
 PREDIX_SH="https://raw.githubusercontent.com/PredixDev/guided-tutorials/$BRANCH/predix.sh"
-SETUP_MAC="https://raw.githubusercontent.com/PredixDev/local-setup/$BRANCH/setup-mac.sh"
+
+TUTORIAL="https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1569&tag=1719&journey=Hello%20World&resources=1475,1569,1523"
+
+PREDIX_NODEJS_STARTER="predix-nodejs-starter"
 
 function manual() {
   echo ""
-  echo "Exiting tutorial. You can manually go through the tutorial steps here"
+  echo ""
+  echo "Exiting tutorial.  You can manually go through the tutorial steps here"
   echo "$TUTORIAL"
   echo ""
 }
@@ -61,14 +73,25 @@ function check_internet() {
   set -e
 }
 
-function run_setup() {
+function init() {
   check_internet
+
+  curl -s -O $VERSION_JSON
+  eval "$(curl -s -L $IZON_SH)"
+
+  __readDependency "local-setup" LOCAL_SETUP_URL LOCAL_SETUP_BRANCH
+  __readDependency $PREDIX_NODEJS_STARTER PREDIX_NODEJS_STARTER_URL PREDIX_NODEJS_STARTER_BRANCH
+
+  SETUP_MAC="https://raw.githubusercontent.com/PredixDev/local-setup/$LOCAL_SETUP_BRANCH/setup-mac.sh"
+}
+
+function run_setup() {
+  init
   bash <(curl -s -L "$SETUP_MAC") --git --cf --nodejs
 }
 
 if $SKIP_SETUP; then
-  check_internet
-  eval "$(curl -s -L $PREDIX_SH)"
+  init
 else
   echo "Welcome to the Predix Front-End Hello World tutorial."
   echo "--------------------------------------------------------------"
@@ -81,40 +104,42 @@ else
   echo ""
 
   run_setup
-  eval "$(curl -s -L $PREDIX_SH)"
 
   echo ""
   echo "The required tools have been installed. Now you can proceed with the tutorial."
   pause
 fi
 
+eval "$(curl -s -L $PREDIX_SH)"
+
 echo ""
-echo "Step 1. Download the predix-nodejs-starter app"
+echo "Step 1. Download the $PREDIX_NODEJS_STARTER app"
 echo "--------------------------------------------------------------"
-if [ -d predix-nodejs-starter ]; then
-  echo "The predix-nodejs-starter already exists."
+if [ -d $PREDIX_NODEJS_STARTER ]; then
+  echo "The $PREDIX_NODEJS_STARTER already exists."
   read -p "Should we delete it and proceed?> " -t 30 answer
   verifyAnswer answer
   echo ""
-  rm -rf predix-nodejs-starter
+  rm -rf $PREDIX_NODEJS_STARTER
 fi
-echoAndRun git clone https://github.com/PredixDev/predix-nodejs-starter.git
-echoAndRun cd predix-nodejs-starter
+echoAndRun git clone --depth 1 --branch $PREDIX_NODEJS_STARTER_BRANCH $PREDIX_NODEJS_STARTER_URL $PREDIX_NODEJS_STARTER
+echoAndRun cd $PREDIX_NODEJS_STARTER
 
 echo ""
 echo "Step 2. Build the node application"
 echo "--------------------------------------------------------------"
 echoAndRun npm install
+echo "npm install complete"
 
 echo ""
 echo "Step 3. Give the application a unique name"
 echo "--------------------------------------------------------------"
-read -p "Enter a prefix for the application name> " -t 30 prefix
+read -p "Enter a prefix for the application name>" -t 30 prefix
 prefix=${prefix// /-}
 prefix=${prefix//_/-}
 
-app_name=$prefix-predix-nodejs-starter
-sed -i -e "s/name: .*predix-nodejs-starter/name: $app_name/" manifest.yml
+app_name=$prefix-$PREDIX_NODEJS_STARTER
+sed -i -e "s/name: .*$PREDIX_NODEJS_STARTER/name: $app_name/" manifest.yml
 echo "App name set to: $app_name"
 
 echo ""
@@ -132,4 +157,3 @@ echo "Step 6. Using a browser, visit the url to see the app"
 echo "--------------------------------------------------------------"
 url=$(cf app $app_name | grep urls | awk '{print $2}')
 echo "https://$url"
-echo "Note: You won't be able to click the links on the html page until you have configured it with UAA, which you will do in a later tutorial."

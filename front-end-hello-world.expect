@@ -1,0 +1,29 @@
+#!/usr/bin/expect
+
+set CF_PREFIX [lindex $argv 0];
+
+set timeout 120
+spawn ./front-end-hello-world.sh --skip-setup
+
+expect "*Step 1"
+expect "*git clone --depth 1 --branch master https://github.com/PredixDev/predix-nodejs-starter predix-nodejs-starter"
+
+expect "*Step 2*"
+expect "npm install complete"
+
+expect "*Step 3*"
+set timeout 5
+expect "Enter a prefix for the application name>*"
+send "$CF_PREFIX\r"
+
+expect "*Step 4*"
+expect "Looks like you are already logged in."
+expect "Press any key*"
+send "\r"
+
+set timeout 120
+expect "*Step 5*"
+expect "cf push"
+
+expect "*Step 6*"
+expect "*\$ "

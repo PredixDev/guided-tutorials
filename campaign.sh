@@ -1,33 +1,41 @@
 #!/bin/bash
 set -e
 
-BRANCH="master"
 SKIP_SETUP=false
+BRANCH="master"
 
 while (( "$#" )); do
-
-if [[ $1 == "--skip-setup" ]]; then
-  SKIP_SETUP=true
-else
-  BRANCH=$1
-fi
-
+opt="$1"
+case $opt in
+  -b|--branch)
+    BRANCH="$2"
+    shift
+  ;;
+  --skip-setup)
+    SKIP_SETUP=true
+  ;;
+esac
 shift
-
 done
 
-TUTORIAL="https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1569&tag=1719&journey=Hello%20World&resources=1475,1569,1523"
+if [[ -z $BRANCH ]]; then
+  echo "Usage: $0 -b/--branch <branch> [--skip-setup]"
+  exit 1
+fi
+
+IZON_SH="https://raw.githubusercontent.com/PredixDev/izon/1.0.0/izon.sh"
+VERSION_JSON="https://raw.githubusercontent.com/PredixDev/guided-tutorials/$BRANCH/version.json"
 PREDIX_SH="https://raw.githubusercontent.com/PredixDev/guided-tutorials/$BRANCH/predix.sh"
-SETUP_MAC="https://raw.githubusercontent.com/PredixDev/local-setup/$BRANCH/setup-mac.sh"
-PREDIX_SCRIPT_DIR_NAME=predix-scripts
-PREDIX_SCRIPT_REPO=https://github.com/PredixDev/$PREDIX_SCRIPT_DIR_NAME.git
-CAMP_APP_REPO_NAME="campaign-nodejs-starter"
-CAMP_APP_GIT_HUB_URL="https://github.com/PredixDev/$CAMP_APP_REPO_NAME.git"
+
+TUTORIAL="https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1569&tag=1719&journey=Hello%20World&resources=1475,1569,1523"
+
+PREDIX_SCRIPTS="predix-scripts"
+CAMPAIGN_NODEJS_STARTER="campaign-nodejs-starter"
 
 function manual() {
   echo ""
   echo ""
-  echo "Exiting tutorial. You can manually go through the tutorial steps here"
+  echo "Exiting tutorial.  You can manually go through the tutorial steps here"
   echo "$TUTORIAL"
   echo ""
 }
@@ -66,29 +74,27 @@ function check_internet() {
   set -e
 }
 
-function run_setup() {
+function init() {
   check_internet
-  git_clone_repo
+
+  curl -s -O $VERSION_JSON
+  eval "$(curl -s -L $IZON_SH)"
+
+  __readDependency "local-setup" LOCAL_SETUP_URL LOCAL_SETUP_BRANCH
+  __readDependency $PREDIX_SCRIPTS PREDIX_SCRIPTS_URL PREDIX_SCRIPTS_BRANCH
+  __readDependency $CAMPAIGN_NODEJS_STARTER CAMPAIGN_NODEJS_STARTER_URL CAMPAIGN_NODEJS_STARTER_BRANCH
+
+  SETUP_MAC="https://raw.githubusercontent.com/PredixDev/local-setup/$LOCAL_SETUP_BRANCH/setup-mac.sh"
+}
+
+function run_setup() {
+  init
   bash <(curl -s -L "$SETUP_MAC") --git --cf --nodejs
 }
 
-function git_clone_repo() {
-  echo ""
-
-  if [ ! -d "$PREDIX_SCRIPT_DIR_NAME" ]; then
-    echo "Cloning predix script repo ..."
-    git clone $PREDIX_SCRIPT_REPO
-  else
-      echo "predix script repo found reusing it..."
-  fi
-
-}
-
 function promptCfLogin() {
-  #cfLogin=$(cf target | grep 'Not logged in.' | awk '{print $1$2}')
   cfLogin=$(cf target | grep 'User' | awk '{print $1}')
   if [ "${cfLogin}" == "User:" ]; then
-    #echo "x has the value 'User:'"
     verifyCfLogin
   else
     echo "To Login to Cloud foundry select the following when prompted"
@@ -102,6 +108,15 @@ function promptCfLogin() {
   fi
 }
 
+function git_clone_repo() {
+  echo ""
+  if [ ! -d "$PREDIX_SCRIPTS" ]; then
+    echo "Cloning predix script repo ..."
+    git clone --depth 1 --branch $PREDIX_SCRIPTS_BRANCH $PREDIX_SCRIPTS_URL
+  else
+      echo "Predix scripts repo found reusing it..."
+  fi
+}
 
 function createUaaClient()
 {
@@ -136,10 +151,7 @@ function createUaaClient()
 }
 
 if $SKIP_SETUP; then
-  check_internet
-  git_clone_repo
-  eval "$(curl -s -L $PREDIX_SH)"
-
+  init
 else
   echo "Welcome to the Predix Campaign tutorial."
   echo "--------------------------------------------------------------"
@@ -152,16 +164,17 @@ else
   echo ""
 
   run_setup
-  eval "$(curl -s -L $PREDIX_SH)"
 
   echo ""
   echo "The required tools have been installed. Now you can proceed with the tutorial."
   pause
 fi
 
+eval "$(curl -s -L $PREDIX_SH)"
+git_clone_repo
+
 campaignstartBaseDir=$(pwd)
-campaignstartRootDir=$campaignstartBaseDir/$PREDIX_SCRIPT_DIR_NAME/bash
-echo " in here $campaignstartBaseDir $campaignstartRootDir"
+campaignstartRootDir=$campaignstartBaseDir/$PREDIX_SCRIPTS/bash
 campaignstartLogDir="$campaignstartRootDir/log"
 predixServicesLogDir=$campaignstartLogDir
 SUMMARY_TEXTFILE="$campaignstartLogDir/predix-services-summary.txt"
@@ -189,16 +202,19 @@ read -p "Enter a prefix for the application/services name> " -t 30 prefix
 INSTANCE_PREPENDER=${prefix// /-}
 INSTANCE_PREPENDER=${prefix//_/-}
 source "$campaignstartRootDir/scripts/variables.sh"
-APP_NAME=$INSTANCE_PREPENDER-$CAMP_APP_REPO_NAME
-if [ ! -d "$CAMP_APP_REPO_NAME" ]; then
-  echo "Cloning $CAMP_APP_GIT_HUB_URL repo ..."
-  git clone $CAMP_APP_GIT_HUB_URL $CAMP_APP_REPO_NAME
+APP_NAME=$INSTANCE_PREPENDER-$CAMPAIGN_NODEJS_STARTER
+
+if [ ! -d "$CAMPAIGN_NODEJS_STARTER" ]; then
+  echo "Cloning $CAMPAIGN_NODEJS_STARTER_URL repo ..."
+  git clone --depth 1 --branch $CAMPAIGN_NODEJS_STARTER_BRANCH $CAMPAIGN_NODEJS_STARTER_URL $CAMPAIGN_NODEJS_STARTER
 else
-    echo "$APP_NAME  found reusing it..."
+    echo "$CAMPAIGN_NODEJS_STARTER found reusing it..."
 fi
-cd $CAMP_APP_REPO_NAME
+
+cd $CAMPAIGN_NODEJS_STARTER
 cf push $APP_NAME
 cd ..
+
 echo ""
 echo ""
 echo "Application deployed, continue with next step to add UAA and Asset."
@@ -271,7 +287,7 @@ else
 	__error_exit "There was an error getting Asset URI..." "$predixServicesLogDir"
 fi
 echo $ASSET_URL
-ASSET_DATA_FILE=$CAMP_APP_REPO_NAME/WTG.json
+ASSET_DATA_FILE=$CAMPAIGN_NODEJS_STARTER/WTG.json
 echo $ASSET_DATA_FILE
 createAsset "$UAA_URL" "$ASSET_URL" "$ASSET_INSTANCE_GUID" "@$ASSET_DATA_FILE"
 echo "Asset upload done completed !!"
@@ -293,9 +309,8 @@ cf set-env $APP_NAME "username" $appuserName
 cf restage $APP_NAME
 apphost=$(cf app $APP_NAME | grep urls: | awk '{print $2;}')
 echo ""
-echo "Congratulations."
-echo "Application successfully deployed at https://$apphost. Please open the application on the browser."
-echo "To claim your Tshirt, please vist the deployed application."
+echo "Congratulations!"
+echo "Your first Predix app was successfully deployed at https://$apphost. Please open the application in your browser to claim your T-shirt!"
 
 # Automagically open the application in browser, based on OS
 case "$(uname -s)" in
@@ -309,4 +324,5 @@ case "$(uname -s)" in
      # Windows
      start "" https://$apphost
      ;;
+
 esac

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#common functions called by guided tutorials
 function pause() {
   read -n1 -r -p "Press any key to continue..."
   echo ""
@@ -17,6 +18,7 @@ function verifyCfLogin() {
     echo "Looks like you are already logged in."
     pause
   else
+    echo "Please logged in."
     cf predix
   fi
 }
@@ -24,4 +26,19 @@ function verifyCfLogin() {
 function echoAndRun() {
   echo $@
   $@
+}
+
+function check_internet() {
+  set +e
+  echo ""
+  echo "Checking internet connection..."
+  curl "http://www.ge.com" > /dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo "Unable to connect to internet, make sure you are connected to a network and check your proxy settings if behind a corporate proxy"
+    echo "If you are behind a corporate proxy, set the 'http_proxy' and 'https_proxy' environment variables."
+    exit 1
+  fi
+  echo "OK"
+  echo ""
+  set -e
 }

@@ -1,14 +1,30 @@
 @ECHO OFF
 SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 
+SET FILE_NAME=%0
 SET BRANCH=master
-IF NOT "%1"=="" (
-  SET BRANCH=%1
+
+:GETOPTS
+  IF /I [%1] == [-b] SET BRANCH=%2& SHIFT
+  IF /I [%1] == [--branch] SET BRANCH=%2& SHIFT
+  SHIFT & IF NOT [%1]==[] GOTO :GETOPTS
+GOTO :AFTERGETOPTS
+
+CALL :GETOPTS %*
+:AFTERGETOPTS
+
+IF [!BRANCH!]==[] (
+  ECHO "Usage: %FILE_NAME% -b/--branch <branch>"
+  EXIT /b 1
 )
 
+SET IZON_BAT=https://raw.githubusercontent.com/PredixDev/izon/1.0.0/izon.bat
+SET VERSION_JSON=https://raw.githubusercontent.com/PredixDev/guided-tutorials/!BRANCH!/version.json
+
 SET TUTORIAL=https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1475^&tag^=1719^&journey^=Hello%%20World^&resources^=1475,1569,1523
-SET SETUP_WINDOWS=https://raw.githubusercontent.com/PredixDev/local-setup/!BRANCH!/setup-windows.bat
-SET SHELL_SCRIPT=https://raw.githubusercontent.com/PredixDev/guided-tutorials/!BRANCH!/simple-html-page.sh
+
+SET SHELL_SCRIPT_NAME=simple-html-page
+SET SHELL_SCRIPT=https://raw.githubusercontent.com/PredixDev/guided-tutorials/!BRANCH!/%SHELL_SCRIPT_NAME%.sh
 
 GOTO START
 
@@ -20,7 +36,8 @@ GOTO :eof
 
 :MANUAL
   ECHO.
-  ECHO Exiting tutorial. You can manually go through the tutorial steps here
+  ECHO.
+  ECHO Exiting tutorial.  You can manually go through the tutorial steps here
   ECHO !TUTORIAL!
 GOTO :eof
 
@@ -33,18 +50,25 @@ GOTO :eof
   IF NOT "!answer:~0,1!"=="y" IF NOT "!answer:~0,1!"=="Y" EXIT /b 1
 GOTO :eof
 
+:INIT
+  powershell -Command "(new-object net.webclient).DownloadFile('!VERSION_JSON!','%TEMP%\version.json')"
+  powershell -Command "(new-object net.webclient).DownloadFile('!IZON_BAT!','%TEMP%\izon.bat')"
+
+  CALL %TEMP%\izon.bat READ_DEPENDENCY local-setup LOCAL_SETUP_URL LOCAL_SETUP_BRANCH %TEMP%
+  SET SETUP_WINDOWS=https://raw.githubusercontent.com/PredixDev/local-setup/!LOCAL_SETUP_BRANCH!/setup-windows.bat
+GOTO :eof
+
 :GET_DEPENDENCIES
   ECHO Getting Dependencies
+
   ECHO !SETUP_WINDOWS!
-  @powershell -Command "(new-object net.webclient).DownloadFile('!SETUP_WINDOWS!','%TEMP%\setup-windows.bat')"
+  powershell -Command "(new-object net.webclient).DownloadFile('!SETUP_WINDOWS!','%TEMP%\setup-windows.bat')"
+
   ECHO !SHELL_SCRIPT!
-  @powershell -Command "(new-object net.webclient).DownloadFile('!SHELL_SCRIPT!','%TEMP%\simple-html-page.sh')"
+  powershell -Command "(new-object net.webclient).DownloadFile('!SHELL_SCRIPT!','%TEMP%\simple-html-page.sh')"
 GOTO :eof
 
 :START
-REM to execute this script, copy this develop or master command to a Windows Administrative Command window
-REM   @powershell -Command "(new-object net.webclient).DownloadFile('https://raw.githubusercontent.com/PredixDev/guided-tutorials/develop/simple-html-page.bat','%TEMP%\simple-html-page.bat')"  && "%TEMP%\simple-html-page.bat" develop
-REM   @powershell -Command "(new-object net.webclient).DownloadFile('https://raw.githubusercontent.com/PredixDev/guided-tutorials/master/simple-html-page.bat','%TEMP%\simple-html-page.bat')"  && "%TEMP%\simple-html-page.bat" master
 
 PUSHD "%TEMP%"
 
@@ -57,6 +81,10 @@ ECHO.
 ECHO Let's start by verifying that you have the required tools installed.
 SET /p answer=Should we install the required tools if not already installed?
 CALL :VERIFY_ANSWER !answer!
+CALL :CHECK_FAIL
+IF NOT !errorlevel! EQU 0 EXIT /b !errorlevel!
+
+CALL :INIT
 CALL :CHECK_FAIL
 IF NOT !errorlevel! EQU 0 EXIT /b !errorlevel!
 
@@ -73,7 +101,7 @@ pause
 POPD
 
 PUSHD "%USERPROFILE%"
-ECHO Running the %TEMP%\simple-html-page.sh script using Git-Bash
+ECHO Running the %TEMP%\%SHELL_SCRIPT_NAME%.sh script using Git-Bash
 ECHO.
-"%PROGRAMFILES%\Git\bin\bash" --login -i -- "%TEMP%\simple-html-page.sh" !BRANCH! --skip-setup
+"%PROGRAMFILES%\Git\bin\bash" --login -i -- "%TEMP%\%SHELL_SCRIPT_NAME%.sh" !BRANCH! --skip-setup
 POPD

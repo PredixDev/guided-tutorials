@@ -1,8 +1,8 @@
 @ECHO OFF
 SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 
-SET FILE_NAME=%0
-SET BRANCH=master
+SET FILE_NAME="%0"
+SET BRANCH="master"
 
 :GETOPTS
   IF /I [%1] == [-b] SET BRANCH=%2& SHIFT
@@ -21,9 +21,8 @@ IF [!BRANCH!]==[] (
 SET IZON_BAT=https://raw.githubusercontent.com/PredixDev/izon/1.0.0/izon.bat
 SET VERSION_JSON=https://raw.githubusercontent.com/PredixDev/guided-tutorials/!BRANCH!/version.json
 
-SET TUTORIAL=https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1569^&tag^=1719^&journey^=Hello%%20World^&resources^=1475,1569,1523
-
-SET SHELL_SCRIPT_NAME=front-end-world
+SET TUTORIAL=https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=2226^&tag^=2100^&journey^=Predix%20UI%20Seed^&resources^=2101,2225,2226
+SET SHELL_SCRIPT_NAME=ui-seed
 SET SHELL_SCRIPT=https://raw.githubusercontent.com/PredixDev/guided-tutorials/!BRANCH!/%SHELL_SCRIPT_NAME%.sh
 
 GOTO START
@@ -73,7 +72,7 @@ GOTO :eof
 PUSHD "%TEMP%"
 
 ECHO.
-ECHO Welcome to the Predix Front-End Hello World tutorial..
+ECHO Welcome to the Predix UI Seed tutorial.
 ECHO --------------------------------------------------------------
 ECHO.
 ECHO This is an automated script which will guide you through the tutorial.
@@ -103,5 +102,5 @@ POPD
 PUSHD "%USERPROFILE%"
 ECHO Running the %TEMP%\%SHELL_SCRIPT_NAME%.sh script using Git-Bash
 ECHO.
-"%PROGRAMFILES%\Git\bin\bash" --login -i -- "%TEMP%\%SHELL_SCRIPT_NAME%.sh" !BRANCH! --skip-setup
+"%PROGRAMFILES%\Git\bin\bash" --login -i -- "%TEMP%\%SHELL_SCRIPT_NAME%.sh" -b !BRANCH! --skip-setup
 POPD
