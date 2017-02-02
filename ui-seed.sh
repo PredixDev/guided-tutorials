@@ -28,7 +28,6 @@ IZON_SH="https://raw.githubusercontent.com/PredixDev/izon/1.0.0/izon.sh"
 VERSION_JSON="https://raw.githubusercontent.com/PredixDev/guided-tutorials/$BRANCH/version.json"
 PREDIX_SH="https://raw.githubusercontent.com/PredixDev/guided-tutorials/$BRANCH/predix.sh"
 
-eval "$(curl -s -L $PREDIX_SH)"
 TUTORIAL="https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=2226&tag=2100&journey=Predix%20UI%20Seed&resources=2101,2225,2226"
 PREDIX_SCRIPTS="predix-scripts"
 PREDIX_SEED="predix-seed"
@@ -193,6 +192,7 @@ function updateFrontEndConfigs()
 
 if $SKIP_SETUP; then
   init
+  eval "$(curl -s -L $PREDIX_SH)"
 else
   echo "Welcome to the Predix UI Seed tutorial."
   echo "--------------------------------------------------------------"
@@ -205,6 +205,7 @@ else
   echo ""
 
   run_setup
+  eval "$(curl -s -L $PREDIX_SH)"
 
   echo ""
   echo "The required tools have been installed. Now you can proceed with the tutorial."

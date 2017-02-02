@@ -152,6 +152,7 @@ function createUaaClient()
 
 if $SKIP_SETUP; then
   init
+  eval "$(curl -s -L $PREDIX_SH)"
 else
   echo "Welcome to the Predix Campaign tutorial."
   echo "--------------------------------------------------------------"
@@ -164,13 +165,13 @@ else
   echo ""
 
   run_setup
+  eval "$(curl -s -L $PREDIX_SH)"
 
   echo ""
   echo "The required tools have been installed. Now you can proceed with the tutorial."
   pause
 fi
 
-eval "$(curl -s -L $PREDIX_SH)"
 git_clone_repo
 
 campaignstartBaseDir=$(pwd)

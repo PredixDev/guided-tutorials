@@ -92,6 +92,7 @@ function run_setup() {
 
 if $SKIP_SETUP; then
   init
+  eval "$(curl -s -L $PREDIX_SH)"
 else
   echo "Welcome to the Predix Front-End Hello World tutorial."
   echo "--------------------------------------------------------------"
@@ -104,13 +105,12 @@ else
   echo ""
 
   run_setup
+  eval "$(curl -s -L $PREDIX_SH)"
 
   echo ""
   echo "The required tools have been installed. Now you can proceed with the tutorial."
   pause
 fi
-
-eval "$(curl -s -L $PREDIX_SH)"
 
 echo ""
 echo "Step 1. Download the $PREDIX_NODEJS_STARTER app"
