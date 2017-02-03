@@ -1,12 +1,13 @@
 #!/usr/bin/expect
 
 set CF_PREFIX [lindex $argv 0];
+set BRANCH [lindex $argv 1]
 
 set timeout 120
-spawn ./front-end-hello-world.sh --skip-setup
+spawn ./front-end-hello-world.sh --skip-setup -b $BRANCH
 
 expect "*Step 1"
-expect "*git clone --depth 1 --branch master https://github.com/PredixDev/predix-nodejs-starter predix-nodejs-starter"
+expect "*git clone --depth 1 --branch $BRANCH *"
 
 expect "*Step 2*"
 expect "npm install complete"

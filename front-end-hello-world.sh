@@ -129,6 +129,9 @@ echo ""
 echo "Step 2. Build the node application"
 echo "--------------------------------------------------------------"
 echoAndRun npm install
+echo "test" > .cfignore
+sed '/passport-predix-oauth.git/d' package.json > package1.json
+mv package1.json package.json
 echo "npm install complete"
 
 echo ""

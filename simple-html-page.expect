@@ -11,7 +11,7 @@ expect "Press any key*"
 send "\r"
 
 expect "*Step 2"
-expect "*git clone --depth 1 --branch 1.0.0 https://github.com/PredixDev/Predix-HelloWorld-WebApp.git*"
+expect "*git clone --depth 1 --branch *"
 
 expect "*Step 3*"
 set timeout 5
@@ -21,6 +21,7 @@ expect "*Take a moment to study the contents of the manifest file.*"
 expect "Press any key *"
 send "\r"
 
+set timeout 120
 expect "*Step 4*"
 expect "cf push"
 
