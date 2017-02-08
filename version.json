@@ -3,7 +3,7 @@
   "version": "1.0.23",
   "private": true,
   "dependencies": {
-    "local-setup": "https://github.com/PredixDev/local-setup#1.0.8",
+    "local-setup": "https://github.com/PredixDev/local-setup#1.0.2",
     "predix-scripts": "https://github.com/PredixDev/predix-scripts#1.0.4",
     "campaign-nodejs-starter": "https://github.com/PredixDev/campaign-nodejs-starter#1.0.0",
     "Predix-HelloWorld-WebApp": "https://github.com/PredixDev/Predix-HelloWorld-WebApp.git#1.0.2",
