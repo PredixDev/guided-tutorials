@@ -59,6 +59,22 @@ function verifyAnswer() {
   exit 1
 }
 
+function check_internet() {
+  # Need to include this function here, can't assume that users have cloned the whole repo.
+  set +e
+  echo ""
+  echo "Checking internet connection..."
+  curl "http://www.ge.com" > /dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo "Unable to connect to internet, make sure you are connected to a network and check your proxy settings if behind a corporate proxy"
+    echo "If you are behind a corporate proxy, set the 'http_proxy' and 'https_proxy' environment variables."
+    exit 1
+  fi
+  echo "OK"
+  echo ""
+  set -e
+}
+
 function init() {
   check_internet
   # pull down version.json, since customers may not clone this repo.
