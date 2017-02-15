@@ -18,8 +18,25 @@ function verifyCfLogin() {
     echo "Looks like you are already logged in."
     pause
   else
-    echo "Please logged in."
+    echo "Please login..."
     cf predix
+  fi
+}
+
+function verifyPxLogin() {
+  set +e
+  local targetInfo
+  targetInfo=$(predix target)
+  set -e
+
+  if [[ "${targetInfo/FAILED}" == "$targetInfo" ]] && [[ "${targetInfo/No org}" == "$targetInfo" ]] && [[ "${targetInfo/No space}" == "$targetInfo" ]]; then
+    predix target
+    echo ""
+    echo "Looks like you are already logged in."
+    pause
+  else
+    echo "Please login..."
+    predix login
   fi
 }
 
