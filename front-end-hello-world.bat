@@ -90,7 +90,7 @@ IF NOT !errorlevel! EQU 0 EXIT /b !errorlevel!
 
 CALL :GET_DEPENDENCIES
 ECHO Calling %TEMP%\setup-windows.bat
-CALL "%TEMP%\setup-windows.bat" /git /cf /nodejs
+CALL "%TEMP%\setup-windows.bat" /git /cf /nodejs /predixcli
 CALL :CHECK_FAIL
 IF NOT !errorlevel! EQU 0 EXIT /b !errorlevel!
 

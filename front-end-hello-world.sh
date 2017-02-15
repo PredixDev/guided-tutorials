@@ -87,7 +87,7 @@ function init() {
 
 function run_setup() {
   init
-  bash <(curl -s -L "$SETUP_MAC") --git --cf --nodejs
+  bash <(curl -s -L "$SETUP_MAC") --git --cf --nodejs --predixcli
 }
 
 if $SKIP_SETUP; then
@@ -148,15 +148,15 @@ echo "App name set to: $app_name"
 echo ""
 echo "Step 4. Sign in to Predix Cloud if not already signed in"
 echo "--------------------------------------------------------------"
-verifyCfLogin
+verifyPxLogin
 
 echo ""
 echo "Step 5. Push the app to the cloud"
 echo "--------------------------------------------------------------"
-echoAndRun cf push
+echoAndRun predix push
 
 echo ""
 echo "Step 6. Using a browser, visit the url to see the app"
 echo "--------------------------------------------------------------"
-url=$(cf app $app_name | grep urls | awk '{print $2}')
+url=$(predix app $app_name | grep urls | awk '{print $2}')
 echo "https://$url"

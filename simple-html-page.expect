@@ -23,7 +23,7 @@ send "\r"
 
 set timeout 180
 expect "*Step 4*"
-#expect "cf push"
+#expect "predix push"
 
 expect "*Step 5*"
 expect "*\$ "
