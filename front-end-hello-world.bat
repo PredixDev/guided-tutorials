@@ -23,7 +23,7 @@ SET VERSION_JSON=https://raw.githubusercontent.com/PredixDev/guided-tutorials/!B
 
 SET TUTORIAL=https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1569^&tag^=1719^&journey^=Hello%%20World^&resources^=1475,1569,1523
 
-SET SHELL_SCRIPT_NAME=front-end-world
+SET SHELL_SCRIPT_NAME=front-end-hello-world
 SET SHELL_SCRIPT=https://raw.githubusercontent.com/PredixDev/guided-tutorials/!BRANCH!/%SHELL_SCRIPT_NAME%.sh
 
 GOTO START
