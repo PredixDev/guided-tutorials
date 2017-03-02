@@ -42,12 +42,11 @@ GOTO :eof
 GOTO :eof
 
 :VERIFY_ANSWER
-  IF "%1"=="" (
+  IF [!answer!]==[] (
     SET /p answer=Specify (yes/no)
-  ) ELSE (
-    SET answer=%1
   )
-  IF NOT "!answer:~0,1!"=="y" IF NOT "!answer:~0,1!"=="Y" EXIT /b 1
+  IF NOT [!answer:~0,1!]==[y] IF NOT [!answer:~0,1!]==[Y] SET answer=n
+  IF NOT [!answer!]==[n] SET answer=y
 GOTO :eof
 
 :INIT
@@ -80,7 +79,7 @@ ECHO This is an automated script which will guide you through the tutorial.
 ECHO.
 ECHO Let's start by verifying that you have the required tools installed.
 SET /p answer=Should we install the required tools if not already installed?
-CALL :VERIFY_ANSWER !answer!
+CALL :VERIFY_ANSWER
 CALL :CHECK_FAIL
 IF NOT !errorlevel! EQU 0 EXIT /b !errorlevel!
 
@@ -89,19 +88,21 @@ CALL :CHECK_FAIL
 IF NOT !errorlevel! EQU 0 EXIT /b !errorlevel!
 
 CALL :GET_DEPENDENCIES
-ECHO Calling %TEMP%\setup-windows.bat
-CALL "%TEMP%\setup-windows.bat" /git /cf /predixcli
-CALL :CHECK_FAIL
-IF NOT !errorlevel! EQU 0 EXIT /b !errorlevel!
+IF [!answer!]==[y] (
+  ECHO Calling %TEMP%\setup-windows.bat
+  CALL "%TEMP%\setup-windows.bat" /git /cf /predixcli
+  CALL :CHECK_FAIL
+  IF NOT !errorlevel! EQU 0 EXIT /b !errorlevel!
 
-ECHO.
-ECHO The required tools have been installed. Now you can proceed with the tutorial.
-pause
+  ECHO.
+  ECHO The required tools have been installed. Now you can proceed with the tutorial.
+  pause
+)
 
 POPD
 
 PUSHD "%USERPROFILE%"
 ECHO Running the %TEMP%\%SHELL_SCRIPT_NAME%.sh script using Git-Bash
 ECHO.
-"%PROGRAMFILES%\Git\bin\bash" --login -i -- "%TEMP%\%SHELL_SCRIPT_NAME%.sh" !BRANCH! --skip-setup
+"%PROGRAMFILES%\Git\bin\bash" --login -i -- "%TEMP%\%SHELL_SCRIPT_NAME%.sh" -b !BRANCH! --skip-setup
 POPD

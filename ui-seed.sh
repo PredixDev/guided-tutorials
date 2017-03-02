@@ -264,7 +264,7 @@ APP_NAME=$INSTANCE_PREPENDER-$PREDIX_SEED
 
 if [ ! -d "$PREDIX_SEED" ]; then
   echo "Cloning $PREDIX_SEED_URL repo ..."
-  git clone --depth 1 --branch develop https://github.com/predixdev/predix-seed $PREDIX_SEED
+  git clone --depth 1 --branch master https://github.com/predixdev/predix-seed $PREDIX_SEED
 else
     echo "$PREDIX_SEED found reusing it..."
 fi

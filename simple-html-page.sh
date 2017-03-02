@@ -53,9 +53,10 @@ function verifyAnswer() {
     read answer
   fi
   if [[ ${answer:0:1} == "y" ]] || [[ ${answer:0:1} == "Y" ]]; then
-    return
+    answer="y"
+  else
+    answer="n"
   fi
-  exit 1
 }
 
 function check_internet() {
@@ -83,6 +84,7 @@ function init() {
   __readDependency $PREDIX_HELLOWORLD_WEBAPP PREDIX_HELLOWORLD_WEBAPP_URL PREDIX_HELLOWORLD_WEBAPP_BRANCH
 
   SETUP_MAC="https://raw.githubusercontent.com/PredixDev/local-setup/$LOCAL_SETUP_BRANCH/setup-mac.sh"
+  eval "$(curl -s -L $PREDIX_SH)"
 }
 
 function run_setup() {
@@ -92,7 +94,6 @@ function run_setup() {
 
 if $SKIP_SETUP; then
   init
-  eval "$(curl -s -L $PREDIX_SH)"
 else
   echo "Welcome to the Predix Hello World tutorial."
   echo "--------------------------------------------------------------"
@@ -100,16 +101,20 @@ else
   echo "This is an automated script which will guide you through the tutorial."
   echo ""
   echo "Let's start by verifying that you have the required tools installed."
-  read -p "Should we install the required tools if not already installed?> " -t 30 answer
-  verifyAnswer answer
-  echo ""
+  read -p "Should we install the required tools if not already installed?> " answer
+  verifyAnswer
+  if [ "$answer" == "y" ]; then
+    echo ""
 
-  run_setup
-  eval "$(curl -s -L $PREDIX_SH)"
+    run_setup
 
-  echo ""
-  echo "The required tools have been installed. Now you can proceed with the tutorial."
-  pause
+    echo ""
+    echo "The required tools have been installed. Now you can proceed with the tutorial."
+    pause
+  else
+    echo ""
+    init
+  fi
 fi
 
 echo ""
@@ -120,14 +125,19 @@ verifyPxLogin
 echo ""
 echo "Step 2. Download the Predix Hello World web application"
 echo "--------------------------------------------------------------"
+answer="y"
 if [ -d $PREDIX_HELLOWORLD_WEBAPP ]; then
   echo "The $PREDIX_HELLOWORLD_WEBAPP already exists."
-  read -p "Should we delete it and proceed?> " -t 30 answer
-  verifyAnswer answer
+  read -p "Should we delete it?> " answer
+  verifyAnswer
   echo ""
-  rm -rf $PREDIX_HELLOWORLD_WEBAPP
+  if [ "$answer" == "y" ]; then
+    rm -rf $PREDIX_HELLOWORLD_WEBAPP
+  fi
 fi
-echoAndRun git clone --depth 1 --branch $PREDIX_HELLOWORLD_WEBAPP_BRANCH $PREDIX_HELLOWORLD_WEBAPP_URL $PREDIX_HELLOWORLD_WEBAPP
+if [ "$answer" == "y" ]; then
+  echoAndRun git clone --depth 1 --branch $PREDIX_HELLOWORLD_WEBAPP_BRANCH $PREDIX_HELLOWORLD_WEBAPP_URL $PREDIX_HELLOWORLD_WEBAPP
+fi
 echoAndRun cd $PREDIX_HELLOWORLD_WEBAPP
 
 echo ""
@@ -136,7 +146,7 @@ echo "--------------------------------------------------------------"
 echo "We will give the application a unique name by editing the manifest file (manifest.yml)."
 echo "This file contains all the information about the application."
 echo ""
-read -p "Enter a suffix for the application name> " -t 30 suffix
+read -p "Enter a suffix for the application name> " suffix
 suffix=${suffix// /-}
 suffix=${suffix//_/-}
 

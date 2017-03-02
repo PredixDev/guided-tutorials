@@ -4,14 +4,8 @@ SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 SET FILE_NAME=%0
 SET BRANCH=master
 
-:GETOPTS
-  IF /I [%1] == [-b] SET BRANCH=%2& SHIFT
-  IF /I [%1] == [--branch] SET BRANCH=%2& SHIFT
-  SHIFT & IF NOT [%1]==[] GOTO :GETOPTS
-GOTO :AFTERGETOPTS
-
-CALL :GETOPTS %*
-:AFTERGETOPTS
+IF /I [%1]==[-b] SET BRANCH=%2
+IF /I [%1]==[--branch] SET BRANCH=%2
 
 IF [!BRANCH!]==[] (
   ECHO "Usage: %FILE_NAME% -b/--branch <branch>"
@@ -21,9 +15,7 @@ IF [!BRANCH!]==[] (
 SET IZON_BAT=https://raw.githubusercontent.com/PredixDev/izon/1.0.0/izon.bat
 SET VERSION_JSON=https://raw.githubusercontent.com/PredixDev/guided-tutorials/!BRANCH!/version.json
 
-SET TUTORIAL=https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1569^&tag^=1719^&journey^=Hello%%20World^&resources^=1475,1569,1523
-
-SET SHELL_SCRIPT_NAME=front-end-hello-world
+SET SHELL_SCRIPT_NAME=oneclick_quickstart
 SET SHELL_SCRIPT=https://raw.githubusercontent.com/PredixDev/guided-tutorials/!BRANCH!/%SHELL_SCRIPT_NAME%.sh
 
 GOTO START
@@ -32,13 +24,6 @@ GOTO START
   IF NOT !errorlevel! EQU 0 (
     CALL :MANUAL
   )
-GOTO :eof
-
-:MANUAL
-  ECHO.
-  ECHO.
-  ECHO Exiting tutorial.  You can manually go through the tutorial steps here
-  ECHO !TUTORIAL!
 GOTO :eof
 
 :VERIFY_ANSWER
@@ -72,7 +57,7 @@ GOTO :eof
 PUSHD "%TEMP%"
 
 ECHO.
-ECHO Welcome to the Predix Front-End Hello World tutorial..
+ECHO Welcome to the Predix QuickStart.
 ECHO --------------------------------------------------------------
 ECHO.
 ECHO This is an automated script which will guide you through the tutorial.
@@ -90,7 +75,7 @@ IF NOT !errorlevel! EQU 0 EXIT /b !errorlevel!
 CALL :GET_DEPENDENCIES
 IF [!answer!]==[y] (
   ECHO Calling %TEMP%\setup-windows.bat
-  CALL "%TEMP%\setup-windows.bat" /git /cf /nodejs /predixcli
+  CALL "%TEMP%\setup-windows.bat" /git /cf /nodejs /maven
   CALL :CHECK_FAIL
   IF NOT !errorlevel! EQU 0 EXIT /b !errorlevel!
 
@@ -104,5 +89,5 @@ POPD
 PUSHD "%USERPROFILE%"
 ECHO Running the %TEMP%\%SHELL_SCRIPT_NAME%.sh script using Git-Bash
 ECHO.
-"%PROGRAMFILES%\Git\bin\bash" --login -i -- "%TEMP%\%SHELL_SCRIPT_NAME%.sh" -b !BRANCH! --skip-setup
+"%PROGRAMFILES%\Git\bin\bash" --login -i -- "%TEMP%\%SHELL_SCRIPT_NAME%.sh" %* --skip-setup
 POPD

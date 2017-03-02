@@ -53,9 +53,10 @@ function verifyAnswer() {
     read answer
   fi
   if [[ ${answer:0:1} == "y" ]] || [[ ${answer:0:1} == "Y" ]]; then
-    return
+    answer="y"
+  else
+    answer="n"
   fi
-  exit 1
 }
 
 function check_internet() {
@@ -83,6 +84,7 @@ function init() {
   __readDependency $PREDIX_NODEJS_STARTER PREDIX_NODEJS_STARTER_URL PREDIX_NODEJS_STARTER_BRANCH
 
   SETUP_MAC="https://raw.githubusercontent.com/PredixDev/local-setup/$LOCAL_SETUP_BRANCH/setup-mac.sh"
+  eval "$(curl -s -L $PREDIX_SH)"
 }
 
 function run_setup() {
@@ -92,7 +94,6 @@ function run_setup() {
 
 if $SKIP_SETUP; then
   init
-  eval "$(curl -s -L $PREDIX_SH)"
 else
   echo "Welcome to the Predix Front-End Hello World tutorial."
   echo "--------------------------------------------------------------"
@@ -100,29 +101,38 @@ else
   echo "This is an automated script which will guide you through the tutorial."
   echo ""
   echo "Let's start by verifying that you have the required tools installed."
-  read -p "Should we install the required tools if not already installed?> " -t 30 answer
-  verifyAnswer answer
-  echo ""
+  read -p "Should we install the required tools if not already installed?> " answer
+  verifyAnswer
+  if [ "$answer" == "y" ]; then
+    echo ""
 
-  run_setup
-  eval "$(curl -s -L $PREDIX_SH)"
+    run_setup
 
-  echo ""
-  echo "The required tools have been installed. Now you can proceed with the tutorial."
-  pause
+    echo ""
+    echo "The required tools have been installed. Now you can proceed with the tutorial."
+    pause
+  else
+    echo ""
+    init
+  fi
 fi
 
 echo ""
 echo "Step 1. Download the $PREDIX_NODEJS_STARTER app"
 echo "--------------------------------------------------------------"
+answer="y"
 if [ -d $PREDIX_NODEJS_STARTER ]; then
   echo "The $PREDIX_NODEJS_STARTER already exists."
-  read -p "Should we delete it and proceed?> " -t 30 answer
-  verifyAnswer answer
+  read -p "Should we delete it?> " answer
+  verifyAnswer
   echo ""
-  rm -rf $PREDIX_NODEJS_STARTER
+  if [ "$answer" == "y" ]; then
+    rm -rf $PREDIX_NODEJS_STARTER
+  fi
 fi
-echoAndRun git clone --depth 1 --branch $PREDIX_NODEJS_STARTER_BRANCH $PREDIX_NODEJS_STARTER_URL $PREDIX_NODEJS_STARTER
+if [ "$answer" == "y" ]; then
+  echoAndRun git clone --depth 1 --branch $PREDIX_NODEJS_STARTER_BRANCH $PREDIX_NODEJS_STARTER_URL $PREDIX_NODEJS_STARTER
+fi
 echoAndRun cd $PREDIX_NODEJS_STARTER
 
 echo ""
@@ -137,7 +147,7 @@ echo "npm install complete"
 echo ""
 echo "Step 3. Give the application a unique name"
 echo "--------------------------------------------------------------"
-read -p "Enter a prefix for the application name>" -t 30 prefix
+read -p "Enter a prefix for the application name>" prefix
 prefix=${prefix// /-}
 prefix=${prefix//_/-}
 
@@ -160,3 +170,4 @@ echo "Step 6. Using a browser, visit the url to see the app"
 echo "--------------------------------------------------------------"
 url=$(predix app $app_name | grep urls | awk '{print $2}')
 echo "https://$url"
+echo ""
