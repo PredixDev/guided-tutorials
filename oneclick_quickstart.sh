@@ -88,11 +88,15 @@ function git_clone_repo() {
     verifyAnswer
     if [ "$answer" == "y" ]; then
       rm -rf $PREDIX_SCRIPTS
+      echo ""
+      echo "Cloning $PREDIX_SCRIPTS repo ..."
+      git clone --depth 1 --branch $PREDIX_SCRIPTS_BRANCH $PREDIX_SCRIPTS_URL $PREDIX_SCRIPTS
     fi
+  else
+    echo ""
+    echo "Cloning $PREDIX_SCRIPTS repo ..."
+    git clone --depth 1 --branch $PREDIX_SCRIPTS_BRANCH $PREDIX_SCRIPTS_URL $PREDIX_SCRIPTS
   fi
-  echo ""
-  echo "Cloning $PREDIX_SCRIPTS repo ..."
-  git clone --depth 1 --branch $PREDIX_SCRIPTS_BRANCH $PREDIX_SCRIPTS_URL $PREDIX_SCRIPTS
 }
 
 if $SKIP_SETUP; then
