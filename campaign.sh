@@ -77,7 +77,7 @@ function check_internet() {
 function init() {
   check_internet
 
-  curl -s -O $VERSION_JSON
+  eval "$(curl -s -O $VERSION_JSON)"
   eval "$(curl -s -L $IZON_SH)"
 
   __readDependency "local-setup" LOCAL_SETUP_URL LOCAL_SETUP_BRANCH
@@ -97,14 +97,28 @@ function promptCfLogin() {
   if [ "${cfLogin}" == "User:" ]; then
     verifyCfLogin
   else
-    echo "To Login to Cloud foundry select the following when prompted"
-    echo ". Choose option Basic >> 1"
-    echo ". Email address"
-    echo ". Password"
-    echo ". Org"
-    echo ". Space (optional)"
-    pause
-    cf predix
+    case "$(uname -s)" in
+
+      Darwin)
+         # OSX
+         echo "To Login to Cloud foundry select the following when prompted"
+         echo ". Choose option Basic >> 1"
+         echo ". Email address"
+         echo ". Password"
+         echo ". Org"
+         echo ". Space (optional)"
+         pause
+         cf predix
+      ;;
+
+      CYGWIN*|MINGW32*|MINGW64*|MSYS*)
+        # Windows
+        echo "On Windows, please use the CF CLI to login to the cloud using a Windows command window before starting the script.  Do not try to login using a Git-Bash (or Cygwin) window."
+        exit 1
+      ;;
+
+    esac
+
   fi
 }
 
@@ -160,7 +174,7 @@ else
   echo "This is an automated script which will guide you through the tutorial."
   echo ""
   echo "Let's start by verifying that you have the required tools installed."
-  read -p "Should we install the required tools if not already installed?> " -t 30 answer
+  read -p "Should we install the required tools if not already installed? (Git, Cloud Foundry CLI, Node.js) > " -t 30 answer
   verifyAnswer answer
   echo ""
 
@@ -173,23 +187,22 @@ else
 fi
 
 git_clone_repo
-
 campaignstartBaseDir=$(pwd)
+quickstartRootDir=$campaignstartBaseDir/$PREDIX_SCRIPTS
 campaignstartRootDir=$campaignstartBaseDir/$PREDIX_SCRIPTS/bash
-campaignstartLogDir="$campaignstartRootDir/log"
-predixServicesLogDir=$campaignstartLogDir
 SUMMARY_TEXTFILE="$campaignstartLogDir/predix-services-summary.txt"
 source "$campaignstartRootDir/scripts/error_handling_funcs.sh"
 source "$campaignstartRootDir/scripts/files_helper_funcs.sh"
-source "$campaignstartRootDir/scripts/curl_helper_funcs.sh"
 source "$campaignstartRootDir/scripts/predix_funcs.sh"
+source "$campaignstartRootDir/scripts/curl_helper_funcs.sh"
 
 # Creating a logfile if it doesn't exist
-if ! [ -d "$campaignstartLogDir" ]; then
-  mkdir "$campaignstartLogDir"
-  chmod 744 "$campaignstartLogDir"
-  touch "$campaignstartLogDir/quickstartlog.log"
+quickstartLogDir="$quickstartRootDir/log"
+if ! [ -d "$quickstartLogDir" ]; then
+  mkdir "$quickstartLogDir"
+  chmod 744 "$quickstartLogDir"
 fi
+touch "$quickstartLogDir/quickstart.log"
 
 echo ""
 echo "Step 1. Sign in to Predix Cloud using cli."
@@ -282,15 +295,19 @@ echo ""
 echo "Step 5. Add Asset model."
 echo "--------------------------------------------------------------"
 # Get the Asset URI and generate Asset body from the enviroment variables (for use when querying and posting data)
+chmod 744 "$quickstartLogDir/quickstart.log"
+touch "$quickstartLogDir/quickstart.log"
+
 if ASSET_URL=$(cf env $APP_NAME | grep -m 100 uri | grep asset | awk -F"\"" '{print $4}'); then
-	__append_new_line_log "Asset URI copied from environment variables! $assetURI" "$predixServicesLogDir"
+	__append_new_line_log "Asset URI copied from environment variables! $assetURI" "$quickstartLogDir"
 else
-	__error_exit "There was an error getting Asset URI..." "$predixServicesLogDir"
+	__error_exit "There was an error getting Asset URI..." "$quickstartLogDir"
 fi
 echo $ASSET_URL
-ASSET_DATA_FILE=$CAMPAIGN_NODEJS_STARTER/WTG.json
+cp $CAMPAIGN_NODEJS_STARTER/WTG.json .
+ASSET_DATA_FILE=WTG.json
 echo $ASSET_DATA_FILE
-createAsset "$UAA_URL" "$ASSET_URL" "$ASSET_INSTANCE_GUID" "@$ASSET_DATA_FILE"
+createAsset "$UAA_URL" "$UAA_CLIENTID_GENERIC" "$UAA_CLIENTID_GENERIC_SECRET" "$ASSET_URL" "$ASSET_INSTANCE_GUID" "@$ASSET_DATA_FILE"
 echo "Asset upload done completed !!"
 echo ""
 echo ""

@@ -19,6 +19,7 @@ IF [!BRANCH!]==[] (
 )
 
 SET IZON_BAT=https://raw.githubusercontent.com/PredixDev/izon/1.0.0/izon.bat
+SET IZON_SH=https://raw.githubusercontent.com/PredixDev/izon/1.0.0/izon.sh
 SET VERSION_JSON=https://raw.githubusercontent.com/PredixDev/guided-tutorials/!BRANCH!/version.json
 
 SET TUTORIAL=https://www.predix.io/resources/tutorials/tutorial-details.html?tutorial_id=1569^&tag^=1719^&journey^=Hello%%20World^&resources^=1475,1569,1523
@@ -41,31 +42,62 @@ GOTO :eof
   ECHO !TUTORIAL!
 GOTO :eof
 
-:VERIFY_ANSWER
-  IF "%1"=="" (
-    SET /p answer=Specify (yes/no)
-  ) ELSE (
-    SET answer=%1
-  )
-  IF NOT "!answer:~0,1!"=="y" IF NOT "!answer:~0,1!"=="Y" EXIT /b 1
+:CHECK_PERMISSIONS
+    echo Administrative permissions required. Detecting permissions...
+
+    net session >nul 2>&1
+    if %errorLevel% == 0 (
+        echo Success: Administrative permissions confirmed.
+    ) else (
+        echo Failure: Current permissions inadequate.  This script installs tools, ensure you are launching Windows Command window by Right clicking and choosing 'Run as Administrator'.
+        EXIT /b 1
+    )
 GOTO :eof
 
 :INIT
-  powershell -Command "(new-object net.webclient).DownloadFile('!VERSION_JSON!','%TEMP%\version.json')"
-  powershell -Command "(new-object net.webclient).DownloadFile('!IZON_BAT!','%TEMP%\izon.bat')"
+  ECHO Let's start by verifying that you have the required tools installed.
+  SET /p answer=Should we install the required tools if not already installed? (Git, Cloud Foundry CLI, Node.js)
+  IF "!answer!"=="" (
+    SET /p answer=Specify yes/no -
+  )
+  IF "!answer:~0,1!"=="y" SET doInstall=Y
+  IF "!answer:~0,1!"=="Y" echo doInstall=Y
 
-  CALL %TEMP%\izon.bat READ_DEPENDENCY local-setup LOCAL_SETUP_URL LOCAL_SETUP_BRANCH %TEMP%
-  SET SETUP_WINDOWS=https://raw.githubusercontent.com/PredixDev/local-setup/!LOCAL_SETUP_BRANCH!/setup-windows.bat
+  if "!doInstall!"=="Y" (
+    CALL :CHECK_PERMISSIONS
+    IF NOT !errorlevel! EQU 0 EXIT /b !errorlevel!
+
+    CALL :GET_DEPENDENCIES
+
+    ECHO Calling %TEMP%\setup-windows.bat
+    CALL "%TEMP%\setup-windows.bat" /git /cf /nodejs
+    ECHO errorlevel=!errorlevel!
+    IF NOT !errorlevel! EQU 0 (
+      ECHO.
+      ECHO "Unable to install tools.  Is there a proxy server?  Perhaps if you go on a regular internet connection (turning off any proxy variables), the tools portion of the install will succeed."
+      EXIT /b !errorlevel!
+    )
+    ECHO.
+    ECHO The required tools have been installed. Now you can proceed with the tutorial.
+    pause
+  )
+
 GOTO :eof
 
 :GET_DEPENDENCIES
   ECHO Getting Dependencies
 
+  powershell -Command "(new-object net.webclient).DownloadFile('!VERSION_JSON!','%TEMP%\version.json')"
+  powershell -Command "(new-object net.webclient).DownloadFile('!IZON_BAT!','%TEMP%\izon.bat')"
+
+  CALL %TEMP%\izon.bat READ_DEPENDENCY local-setup LOCAL_SETUP_URL LOCAL_SETUP_BRANCH %TEMP%
+  ECHO "LOCAL_SETUP_BRANCH=!LOCAL_SETUP_BRANCH!"
+  SET SETUP_WINDOWS=https://raw.githubusercontent.com/PredixDev/local-setup/!LOCAL_SETUP_BRANCH!/setup-windows.bat
+  rem SET SETUP_WINDOWS=https://raw.githubusercontent.com/PredixDev/local-setup/!LOCAL_SETUP_BRANCH!/setup-windows.bat
+
   ECHO !SETUP_WINDOWS!
   powershell -Command "(new-object net.webclient).DownloadFile('!SETUP_WINDOWS!','%TEMP%\setup-windows.bat')"
 
-  ECHO !SHELL_SCRIPT!
-  powershell -Command "(new-object net.webclient).DownloadFile('!SHELL_SCRIPT!','%TEMP%\%SHELL_SCRIPT_NAME%.sh')"
 GOTO :eof
 
 :START
@@ -78,27 +110,15 @@ ECHO --------------------------------------------------------------
 ECHO.
 ECHO This is an automated script which will guide you through the tutorial.
 ECHO.
-ECHO Let's start by verifying that you have the required tools installed.
-SET /p answer=Should we install the required tools if not already installed?
-CALL :VERIFY_ANSWER !answer!
-CALL :CHECK_FAIL
-IF NOT !errorlevel! EQU 0 EXIT /b !errorlevel!
 
 CALL :INIT
 CALL :CHECK_FAIL
 IF NOT !errorlevel! EQU 0 EXIT /b !errorlevel!
 
-CALL :GET_DEPENDENCIES
-ECHO Calling %TEMP%\setup-windows.bat
-CALL "%TEMP%\setup-windows.bat" /git /cf /nodejs
-CALL :CHECK_FAIL
-IF NOT !errorlevel! EQU 0 EXIT /b !errorlevel!
-
-ECHO.
-ECHO The required tools have been installed. Now you can proceed with the tutorial.
-pause
-
 POPD
+
+ECHO Copy !SHELL_SCRIPT! to %TEMP%
+powershell -Command "(new-object net.webclient).DownloadFile('!SHELL_SCRIPT!','%TEMP%\%SHELL_SCRIPT_NAME%.sh')"
 
 PUSHD "%USERPROFILE%"
 ECHO Running the %TEMP%\%SHELL_SCRIPT_NAME%.sh script using Git-Bash

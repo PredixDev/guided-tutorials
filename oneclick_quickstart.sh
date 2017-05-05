@@ -3,7 +3,7 @@
 set -e
 BRANCH="master"
 SKIP_SETUP=false
-QUICKSTART_ARGS=""
+QUICKSTART_ARGS="-script build-basic-app.sh"
 
 while (( "$#" )); do
 opt="$1"

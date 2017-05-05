@@ -10,7 +10,7 @@ expect "Looks like you are already logged in."
 expect "Press any key*"
 send "\r"
 
-expect "*Step 2*"
+#expect "*Step 2*"
 expect "Enter a prefix for the application/services name> "
 send "$CF_PREFIX\r"
 expect "Press any key*"
