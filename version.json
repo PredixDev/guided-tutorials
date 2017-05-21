@@ -1,6 +1,6 @@
 {
   "name": "guided tutorials",
-  "version": "1.0.78",
+  "version": "1.0.81",
   "private": true,
   "dependencies": {
     "local-setup": "https://github.com/PredixDev/local-setup#1.0.11",
