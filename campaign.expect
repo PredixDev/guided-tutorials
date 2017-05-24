@@ -2,8 +2,9 @@
 
 set CF_PREFIX [lindex $argv 0];
 
+
 set timeout 120
-spawn ./campaign.sh --skip-setup master
+spawn ./campaign.sh --skip-setup --develop
 
 expect "*Step 1*"
 expect "Looks like you are already logged in."

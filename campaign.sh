@@ -14,6 +14,9 @@ case $opt in
   --skip-setup)
     SKIP_SETUP=true
   ;;
+  --develop)
+    BRANCH="develop"
+  ;;
 esac
 shift
 done
@@ -243,7 +246,7 @@ echo "Creating an instance of the UAA service"
 echo ""
 
 # Create instance of Predix UAA Service
-__try_create_service $UAA_SERVICE_NAME $UAA_PLAN $UAA_INSTANCE_NAME "{\"adminClientSecret\":\"$UAA_ADMIN_SECRET\"}" "Predix UAA"
+__try_create_service_using_cfcli $UAA_SERVICE_NAME $UAA_PLAN $UAA_INSTANCE_NAME "{\"adminClientSecret\":\"$UAA_ADMIN_SECRET\"}" "Predix UAA"
 
 UAA_INSTANCE_GUID=$(cf service $UAA_INSTANCE_NAME  --guid)
 UAA_INSTANCE_DOMAIN="predix-uaa.run.aws-usw02-pr.ice.predix.io"
@@ -253,7 +256,7 @@ TRUSTED_ISSUER_ID="$UAA_URL/oauth/token"
 echo "Creating an instance of the Asset service"
 
 #Create instance of Predix Asset Service
-__try_create_service $ASSET_SERVICE_NAME $ASSET_SERVICE_PLAN $ASSET_INSTANCE_NAME "{\"trustedIssuerIds\":[\"$TRUSTED_ISSUER_ID\"]}" "Predix Asset"
+__try_create_service_using_cfcli $ASSET_SERVICE_NAME $ASSET_SERVICE_PLAN $ASSET_INSTANCE_NAME "{\"trustedIssuerIds\":[\"$TRUSTED_ISSUER_ID\"]}" "Predix Asset"
 
 ASSET_INSTANCE_GUID=$(cf service $ASSET_INSTANCE_NAME  --guid)
 
