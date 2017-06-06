@@ -1,13 +1,13 @@
 {
   "name": "guided tutorials",
-  "version": "1.0.148",
+  "version": "1.0.151",
   "private": true,
   "dependencies": {
-    "local-setup": "https://github.com/PredixDev/local-setup#1.0.148",
-    "predix-scripts": "https://github.com/PredixDev/predix-scripts#1.0.148",
-    "campaign-nodejs-starter": "https://github.com/PredixDev/campaign-nodejs-starter#1.0.148",
-    "Predix-HelloWorld-WebApp": "https://github.com/PredixDev/Predix-HelloWorld-WebApp.git#1.0.148",
-    "predix-nodejs-starter": "https://github.com/PredixDev/predix-nodejs-starter#1.0.148"
+    "local-setup": "https://github.com/PredixDev/local-setup#1.0.151",
+    "predix-scripts": "https://github.com/PredixDev/predix-scripts#1.0.151",
+    "campaign-nodejs-starter": "https://github.com/PredixDev/campaign-nodejs-starter#1.0.151",
+    "Predix-HelloWorld-WebApp": "https://github.com/PredixDev/Predix-HelloWorld-WebApp.git#1.0.151",
+    "predix-nodejs-starter": "https://github.com/PredixDev/predix-nodejs-starter#1.0.151"
   },
   "author": "rishabhtulsian,swapnavad"
 }
