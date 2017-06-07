@@ -323,12 +323,12 @@ echo "Step 6. Restage $APP_NAME "
 echo "--------------------------------------------------------------"
 echo ""
 
-appuserName=$(cf target | grep User: | awk '{print $2}')
+appuserName=$(cf target | grep -i User: | awk '{print $2}')
 
 cf set-env $APP_NAME "username" $appuserName
 
 cf restage $APP_NAME
-apphost=$(cf app $APP_NAME | grep urls: | awk '{print $2;}')
+apphost=$(cf app $APP_NAME | grep -i urls: | awk '{print $2;}')
 echo ""
 echo "Congratulations!"
 echo "Your first Predix app was successfully deployed at https://$apphost. Please open the application in your browser to claim your T-shirt!"
